@@ -1,0 +1,31 @@
+---
+- name: Add EPEL repo
+  dnf:
+    name: 
+      - epel-release
+      - dnf-plugins-core
+    state: present
+
+- name: Enable PowerTools repo
+  lineinfile:
+    path: /etc/yum.repos.d/CentOS-Linux-PowerTools.repo
+    regexp: '^enabled=0'
+    line: 'enabled=1'
+
+- name: Add OpenHPC repo
+  dnf:
+    name: http://repos.openhpc.community/OpenHPC/2/CentOS_8/x86_64/ohpc-release-2-1.el8.x86_64.rpm
+    disable_gpg_check: true
+    state: present
+
+- name: Install OpenHPC packages
+  dnf:
+    name:
+      - ohpc-base
+      - ohpc-slurm-server
+    state: present
+
+- name: Install user apps
+  dnf: 
+    name: "{{ head_node_user_packages }}"
+    state: present

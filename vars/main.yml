@@ -1,0 +1,87 @@
+---
+# vars file for openstack-virtual-cluster
+#
+# Cluster general info
+# 
+cluster_name: "cluster1"
+image_name: "centos-8.3"
+image_init_user: "cloud-user"
+
+#
+# Heade node
+#
+head_node_name: "{{ cluster_name }}-headnode"
+head_node_volume: "{{ cluster_name }}-headnode-boot"
+head_node_flavor: c1.m8
+head_node_disk_size_gb: 50
+head_node_user_packages:
+  - ohpc-autotools
+  - ohpc-gnu9-io-libs
+  - ohpc-gnu9-openmpi4-io-libs
+  - ohpc-gnu9-openmpi4-parallel-libs
+  - ohpc-gnu9-parallel-libs
+  - ohpc-gnu9-python3-libs
+  - gnu9-compilers-ohpc
+  - openmpi4-gnu9-ohpc
+  - lmod-defaults-gnu9-openmpi4-ohpc
+  - automake-ohpc
+  - autoconf-ohpc
+  - cmake-ohpc
+  - libtool-ohpc
+  - python3-scipy-gnu9-openmpi4-ohpc
+  - python3-numpy-gnu9-ohpc
+  - python3-mpi4py-gnu9-openmpi4-ohpc
+  - pnetcdf-gnu9-openmpi4-ohpc
+  - gsl-gnu9-ohpc
+  - openblas-gnu9-ohpc
+  - boost-gnu9-openmpi4-ohpc
+  - fftw-gnu9-openmpi4-ohpc
+  - hypre-gnu9-openmpi4-ohpc
+  - scalapack-gnu9-openmpi4-ohpc
+
+#
+# Access
+#
+keypair_name: "{{ cluster_name }}-key"
+ssh_public_keyfile: /home/user/.ssh/id_rsa.pub
+ssh_private_keyfile: /home/user/.ssh/id_rsa
+cluster_security_group: "{{ cluster_name }}-group"
+cluster_network_ssh_access: 0.0.0.0/0
+
+#
+# Networking
+#
+cluster_network_name: "{{ cluster_name }}-net"
+cluster_network_cidr: 192.168.100.0/24
+cluster_network_allocation_pool_start: 192.168.100.50
+cluster_network_allocation_pool_end: 192.168.100.249
+cluster_network_dns_servers: 
+  - 10.84.5.252
+  - 10.84.40.250
+cluster_network_router: "{{ cluster_network_name }}-router"
+
+#
+# Compute imaging instance: the instance create_compute_image.yml playbook
+# uses to create compute node image.
+#
+compute_imaging_instance_flavor: c1.m8
+
+#
+# Compute Node
+#
+compute_node_image: "{{ cluster_name }}-compute-image"
+compute_node_flavor: c4.m32
+# Need to match the core count of compute_node_flavor. Need to rebuild 
+# compute image after changing this value
+compute_node_cpus: 4  
+compute_node_disk_size_gb: 50
+# Max number of compute nodes. Need to rebuild compute image after 
+# changing this value
+max_compute_nodes: 10
+# Number of seconds slurm waits before deleting an idle compute node
+# instance
+slurm_suspend_time: 300
+#
+# slurmctld log debug levels: quiet, fatal, error, info, verbose, debug,
+# debug2, debug3, debug4, debug5
+slurmctld_log_debug: debug3

@@ -1,0 +1,35 @@
+#!/bin/bash
+
+. /etc/slurm/openrc.sh
+
+log_loc=/var/log/slurm/slurm_elastic.log
+
+echo "Node resume invoked: $0 $*" >> $log_loc
+
+#First, loop over hosts and run the openstack create commands for *all* resume hosts at once.
+for host in $(scontrol show hostname $1)
+do
+
+(echo "creating $host" >> $log_loc;
+    /usr/local/bin/openstack server create $host \
+    --flavor {{ compute_node_flavor }} \
+    --image {{ compute_node_image }}  \
+	--boot-from-volume {{ compute_node_disk_size_gb }} \
+    --key-name {{ keypair_name }} \
+    --security-group {{ cluster_security_group }} \
+	--network {{ cluster_network_name }} 2>&1 \
+    | tee -a $log_loc | awk '/status/ {print $4}' >> $log_loc 2>&1;
+
+  node_status="UNKOWN";
+  until [[ $node_status == "ACTIVE" ]]; do
+    node_state=$(/usr/local/bin/openstack server show $host 2>&1);
+    node_status=$(echo -e "${node_state}" | awk '/status/ {print $4}');
+    sleep 3;
+  done;
+  node_ip=$(echo -e "${node_state}" | awk '/addresses/ {print gensub(/^.*=/,"","g",$4)}');
+
+  echo "$host ip is $node_ip" >> $log_loc;
+  scontrol update nodename=$host nodeaddr=$node_ip >> $log_loc;)&
+  sleep 2
+
+done

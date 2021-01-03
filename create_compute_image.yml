@@ -1,0 +1,189 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars_files:
+     - ./vars/main.yml
+
+  tasks:
+  - name: Check if compute node image already exists
+    openstack.cloud.image_info:
+      image: "{{ compute_node_image }}"
+    register: compute_image_info
+    
+  - fail: 
+      msg: "{{ compute_node_image }} already exists."
+    when: compute_image_info.openstack_image 
+
+  - name: Get size of the image
+    os_image_info:
+      image: "{{ image_name }}"
+    register: image_info
+
+  - name: Create boot volume for compute imaging instance
+    os_volume: 
+      name: "{{ compute_node_image }}"
+      image: "{{ image_name }}"
+      size: "{{ (image_info.openstack_image.size/1024/1024/1024) | int }}"
+      bootable: true
+      state: present
+
+  - name: Launch compute imaging instance
+    os_server:
+      name: "{{ cluster_name }}-compute-imaging"
+      boot_volume: "{{ compute_node_image }}"
+      flavor: "{{ compute_imaging_instance_flavor }}"
+      key_name: "{{ keypair_name }}"
+      network: "{{ cluster_network_name }}"
+      auto_ip: yes
+      security_groups: 
+        - "{{ cluster_security_group }}"
+      state: present
+
+  - name: Get imaging instance info
+    os_server_info:
+      server: "{{ cluster_name }}-compute-imaging"
+    register: compute_imaging
+
+  - name: Add imaging instance to Ansible inventory
+    add_host: 
+      name: "{{ compute_imaging.openstack_servers[0].accessIPv4 }}"
+      groups: compute_imaging
+      ansible_user: "{{ image_init_user }}"
+      ansible_ssh_private_key_file: "{{ ssh_private_keyfile }}"
+      ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    changed_when: false
+
+  - import_tasks: tasks/add_headnode_inventory.yml
+
+- hosts: compute_imaging
+  gather_facts: false
+  vars_files:
+    - ./vars/main.yml
+  
+  tasks:
+    - name: Wait for compute imaging instance to boot and become reachable
+      wait_for_connection:
+
+    - debug: 
+        msg: "{{ cluster_name }}_compute_imaging instance is running at {{ hostvars['localhost'].compute_imaging.openstack_servers[0].accessIPv4 }}."
+ 
+- hosts: compute_imaging
+  gather_facts: true
+  vars_files:
+    - ./vars/main.yml 
+  become: true
+  
+  roles:
+    - geerlingguy.ntp
+
+  tasks:
+    - import_tasks: tasks/install_compute_packages.yml
+
+    - name: Allow incoming traffic from cluster network
+      ansible.posix.firewalld:
+        source: "{{ cluster_network_cidr }}"
+        zone: trusted
+        state: enabled
+        permanent: true
+        immediate: true
+
+    - name: Add home directory mount to /etc/fstab
+      ansible.posix.mount:
+        path: /home
+        src: "{{ hostvars['localhost'].headnode.openstack_servers[0].private_v4 }}:/home"
+        fstype: nfs
+        state: present
+
+    - name: Create /opt/ohpc/pub
+      file:
+        path: /opt/ohpc/pub
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+        recurse: yes
+
+    - name: Add /opt/ohpc/pub to /etc/fstab
+      ansible.posix.mount:
+        path: /opt/ohpc/pub
+        src: "{{ hostvars['localhost'].headnode.openstack_servers[0].private_v4 }}:/opt/ohpc/pub"
+        fstype: nfs
+        state: present
+
+    - name: Create /var/log/slurm
+      file:
+        path: /var/log/slurm
+        owner: slurm
+        group: slurm
+        mode: 0700
+        state: directory
+
+    - name: Copy slurm.conf
+      template:
+        src: slurm.conf.j2
+        dest: /etc/slurm/slurm.conf
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Copy munge key
+      copy: 
+        src: munge.key
+        dest: /etc/munge/munge.key
+        owner: munge
+        group: munge
+        mode: 0600
+
+    - name: Set slurmd to auto-start at boot time
+      service:
+        name: slurmd
+        enabled: true
+
+    - name: Set munge to auto-start at boot time
+      service:
+        name: munge
+        enabled: true
+
+    - name: Shut down compute imaging instance
+      community.general.shutdown: 
+        delay: 5
+
+    - name: Wait 10 seconds for instance shut down
+      pause: 
+        seconds: 10
+
+- hosts: localhost
+  gather_facts: false
+  vars_files:
+    - ./vars/main.yml
+  
+  tasks:
+    - name: Delete compute imaging instance
+      openstack.cloud.server:
+        delete_fip: true
+        name: "{{ cluster_name }}-compute-imaging"
+        state: absent
+
+    - name: Wait for the compute image volume is detached
+      openstack.cloud.volume_info:
+        name: "{{ compute_node_image }} "
+        details: true
+      register: volumes_info
+      until: volumes_info.volumes[0].status is match("available")
+
+    - name: Create compute image
+      openstack.cloud.image:
+        name: "{{ compute_node_image }}"
+        volume: "{{ volumes_info.volumes[0].id }}"
+        disk_format: raw
+        timeout: 600
+        state: present
+
+    - name: Delete compute image volume
+      openstack.cloud.volume:
+        name: "{{ volumes_info.volumes[0].id }}"
+        state: absent
+
+    - debug:
+        msg: "Created {{ compute_node_image }}."
+      

@@ -1,0 +1,50 @@
+- hosts: localhost
+  gather_facts: false
+  vars_files: 
+    - ./vars/main.yml
+
+  tasks:
+    - name: Find all cluster instances
+      openstack.cloud.server_info:
+        server: "{{ cluster_name }}*"
+      register: cluster_instances
+
+    - name: Delete all cluster instances
+      openstack.cloud.server:
+        name: "{{ item.name }}"
+        state: absent
+        delete_fip: true
+      loop: "{{ cluster_instances.openstack_servers }}"
+
+    - name: Delete cluster subnet router
+      openstack.cloud.router: 
+        name: "{{ cluster_network_router }}"
+        state: absent
+
+    - name: Delete cluster subnet
+      openstack.cloud.subnet:
+        name: "{{ cluster_network_name }}"
+        state: absent
+
+    - name: Delete cluster network
+      openstack.cloud.network:
+        name: "{{ cluster_network_name }}"
+        state: absent
+
+    - name: Delete cluster head node boot volume
+      openstack.cloud.volume:
+        name: "{{ head_node_name }}"
+        state: absent
+
+    - name: Delete cluster security group 
+      openstack.cloud.security_group:
+        name: "{{ cluster_security_group }}"
+        state: absent 
+
+    - name: Delete cluster ssh keypair
+      os_keypair:
+        name: "{{ keypair_name }}"
+        state: absent
+
+    - debug:
+        msg: "Cleaned up {{ cluster_name }} cloud resources." 

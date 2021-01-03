@@ -1,0 +1,14 @@
+---
+- name: Get head node information
+  os_server_info:
+    server: "{{ head_node_name }}"
+  register: headnode
+
+- name: Add head node to Ansible inventory
+  add_host: 
+    name: "{{ headnode.openstack_servers[0].accessIPv4 }}"
+    groups: headnode
+    ansible_user: "{{ image_init_user }}"
+    ansible_ssh_private_key_file: "{{ ssh_private_keyfile }}"
+    ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+  changed_when: false

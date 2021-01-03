@@ -1,0 +1,7 @@
+---
+- name: Install Openstack client via pip
+  pip:
+    name: 
+      - python-openstackclient
+      - python-openstacksdk
+    state: present

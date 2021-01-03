@@ -1,0 +1,96 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars_files:
+    - vars/main.yml
+
+  tasks: 
+    - name: Create cluster private network
+      os_network: 
+        name: "{{ cluster_network_name }}"
+        state: present
+
+    - name: Create subnet for cluster network
+      os_subnet:
+        name: "{{ cluster_network_name }}"
+        network_name: "{{ cluster_network_name }}"
+        cidr: "{{ cluster_network_cidr }}"
+        allocation_pool_start: "{{ cluster_network_allocation_pool_start }}"     
+        allocation_pool_end: "{{ cluster_network_allocation_pool_end }}"
+        dns_nameservers: "{{ cluster_network_dns_servers }}"
+        state: present
+
+    - name: Create a router to connect cluster network to internet
+      os_router: 
+        name: "{{ cluster_network_router }}"
+        admin_state_up: true
+        network: "public" 
+        interfaces:
+          - "{{ cluster_network_name }}"
+        state: present 
+
+    - name: Create security group for the cluster
+      openstack.cloud.security_group:
+        name: "{{ cluster_security_group }}"
+        description: "Security Group for {{ cluster_name }}"
+        state: present
+
+    - name: Add security group access rule to allow ssh 
+      openstack.cloud.security_group_rule:
+        security_group: "{{ cluster_security_group }}"
+        port_range_min: 22
+        port_range_max: 22
+        protocol: tcp
+        remote_ip_prefix: "{{ cluster_network_ssh_access }}"
+        state: present
+
+    - name: Add security group access rule to allow access within group
+      openstack.cloud.security_group_rule:
+        security_group: "{{ cluster_security_group }}"
+        protocol: any
+        remote_group: "{{ cluster_security_group }}"
+        state: present
+
+    - name: Add ssh keypair
+      os_keypair:
+        name: "{{ keypair_name }}"
+        public_key_file: "{{ ssh_public_keyfile }}"
+        state: present
+
+    - name: Create boot volume for head node
+      os_volume:
+        name: "{{ head_node_volume }}"
+        image: "{{ image_name }}"
+        bootable: true
+        size: "{{ head_node_disk_size_gb }}"
+        state: present
+
+    - name: Launch cluster head node instance
+      os_server:
+        name: "{{ head_node_name }}"
+        boot_volume: "{{ head_node_volume }}"
+        flavor: "{{ head_node_flavor }}"
+        key_name: "{{ keypair_name }}"
+        network: "{{ cluster_network_name }}"
+        auto_ip: true
+        security_groups: "{{ cluster_security_group }}"
+        state: present
+
+    - name: Add head node to inventory
+      import_tasks: tasks/add_headnode_inventory.yml
+
+    - debug:
+        msg: "{{ cluster_name }} head node is launched at {{ hostvars['localhost'].headnode.openstack_servers[0].accessIPv4 }}"
+
+
+- hosts: headnode
+  gather_facts: false
+  vars_files:
+    - ./vars/main.yml
+
+  tasks:
+    - name: wait for head node to boot and become reachable
+      wait_for_connection:
+
+    - debug:
+        msg: "{{ cluster_name }} head node is up at {{ hostvars['localhost'].headnode.openstack_servers[0].accessIPv4 }}."

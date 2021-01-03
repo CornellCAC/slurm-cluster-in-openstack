@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+export OS_AUTH_URL={{ lookup('env','OS_AUTH_URL') }}
+export OS_PROJECT_NAME={{ lookup('env','OS_PROJECT_NAME') }}
+export OS_PROJECT_DOMAIN_NAME={{ lookup('env','OS_PROJECT_DOMAIN_NAME') }}
+export OS_USER_DOMAIN_NAME={{ lookup('env','OS_USER_DOMAIN_NAME') }}
+export OS_USERNAME={{ lookup('env','OS_USERNAME') }}
+export OS_PASSWORD='{{ lookup('env','OS_PASSWORD') }}'
+export OS_REGION_NAME={{ lookup('env','OS_REGION_NAME') }}
+export OS_INTERFACE={{ lookup('env','OS_INTERFACE') }}
+export OS_IDENTITY_API_VERSION={{ lookup('env','OS_IDENTITY_API_VERSION') }}
+export OS_COMPUTE_API_VERSION={{ lookup('env','OS_COMPUTE_API_VERSION') }}

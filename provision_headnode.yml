@@ -1,0 +1,102 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars_files: 
+    - ./vars/main.yml
+  tasks: 
+    - import_tasks: tasks/add_headnode_inventory.yml
+
+- hosts: headnode
+  become: yes
+  vars_files: 
+    - ./vars/main.yml
+
+  roles:
+    - role: geerlingguy.nfs
+      vars:
+        nfs_exports: [ "/home {{ cluster_network_cidr }}(rw,sync,no_root_squash)","/opt/ohpc/pub {{ cluster_network_cidr }}(rw,sync,no_root_squash)" ]
+    - role: geerlingguy.ntp
+      vars:
+        ntp_servers:
+          - "ntp0.cac.cornell.edu iburst"
+          - "ntp1.cac.cornell.edu iburst"
+          - "ntp2.cac.cornell.edu iburst"
+
+  handlers:
+    - name: restart slurmctld
+      service: 
+        name: slurmctld
+        state: restarted
+
+  tasks:
+    - import_tasks: tasks/install_openstack_client.yml
+    
+    - import_tasks: tasks/install_headnode_packages.yml
+   
+    - name: Allow incoming traffic from cluster network
+      ansible.posix.firewalld:
+        source: "{{ cluster_network_cidr }}"
+        zone: trusted
+        state: enabled
+        permanent: true
+        immediate: true
+
+    - name: Create /var/log/slurm
+      file:
+        path: /var/log/slurm
+        owner: slurm
+        group: slurm
+        mode: 0700
+        state: directory
+
+    - name: Copy openrc file
+      template:
+        src: openrc.sh.j2
+        dest: /etc/slurm/openrc.sh
+        owner: slurm
+        group: slurm
+        mode: 0600
+
+    - name: Copy slurm.conf
+      template:
+        src: slurm.conf.j2
+        dest: /etc/slurm/slurm.conf
+        owner: root
+        group: root
+        mode: 0644
+      notify: restart slurmctld
+
+    - name: Copy slurm_resume.sh
+      template:
+        src: slurm_resume.sh.j2
+        dest: /usr/local/sbin/slurm_resume.sh
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: Copy slurm_suspend.sh
+      template:
+        src: slurm_suspend.sh.j2
+        dest: /usr/local/sbin/slurm_suspend.sh
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: Start slurmctld
+      service:
+        name: slurmctld
+        state: started
+        enabled: true
+    
+    - name: Start munge
+      service:
+        name: munge
+        state: started
+        enabled: true
+
+    - name: Gather munge.key
+      fetch:
+        src: /etc/munge/munge.key
+        dest: ./files/munge.key
+        flat: yes
+

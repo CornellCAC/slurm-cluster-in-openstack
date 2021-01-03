@@ -1,0 +1,9 @@
+---
+collections:
+- openstack.cloud
+- ansible.posix
+- community.general
+
+roles:
+- geerlingguy.nfs
+- geerlingguy.ntp

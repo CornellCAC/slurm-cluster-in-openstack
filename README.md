@@ -29,7 +29,7 @@ This yaml file defines variables that configure the cluster. The relevant ones a
   * `head_node_disk_size_gb`: disk size of the head node in GB.
 
 * Access
-  * `ssh_public_keyfile` and `ssh_private_keyfile`: Full paths (no tilde) to matching ssh public and private keys for gain initial access to the cluster. **Need to update the default values.**
+  * `ssh_public_keyfile` and `ssh_private_keyfile`: Full paths (no tilde) to matching ssh public and private keys for initial access to the cluster. **Need to update the default values.**
   * `cluster_network_ssh_access`: Restrict ssh access to the cluster to this IP range, or enter `0.0.0.0/0` for no restrictions. Make sure this CIDR include the IP address of your computer so it can deploy the cluster!
 
 * Networking

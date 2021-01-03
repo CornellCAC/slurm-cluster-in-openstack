@@ -74,7 +74,12 @@
   become: true
   
   roles:
-    - geerlingguy.ntp
+    - role: geerlingguy.ntp
+      vars:
+        ntp_servers:
+          - "ntp0.cac.cornell.edu iburst"
+          - "ntp1.cac.cornell.edu iburst"
+          - "ntp2.cac.cornell.edu iburst"
 
   tasks:
     - import_tasks: tasks/install_compute_packages.yml

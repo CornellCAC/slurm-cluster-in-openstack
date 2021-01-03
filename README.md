@@ -22,7 +22,7 @@ To run the ansible playbooks described in the subsequent sections, you must firs
 This yaml file defines variables that configure the cluster. The relevant ones are:
 
 * Cluster
-  * `cluster_name`: Use a name unique to your Openstack project. The playbooks identify cloud resources used by the cluster by this string in the resource names. **Need to update the default values**
+  * `cluster_name`: Use a name unique to your Openstack project. The playbooks identify cloud resources used by the cluster by this string in the resource names. After you set this variable initially, please do not change it. **Need to update the default values**
 
 * Head Node
   * `head_node_flavor`: instance flavor of the head node.

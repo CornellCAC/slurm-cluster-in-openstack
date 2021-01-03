@@ -1,4 +1,4 @@
-# Slurm Cluster in Openstack
+# Slurm Cluster in Openstack Cloud
 These ansible playbooks create and manage a dynamically allocated slurm cluster in an Openstack cloud. The cluster is based on CentOS 8 and [OpenHPC 2.x](https://openhpc.community/downloads/).
 
 # Systems Requirements

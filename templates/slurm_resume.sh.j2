@@ -14,7 +14,6 @@ do
     /usr/local/bin/openstack server create $host \
     --flavor {{ compute_node_flavor }} \
     --image {{ compute_node_image }}  \
-	--boot-from-volume {{ compute_node_disk_size_gb }} \
     --key-name {{ keypair_name }} \
     --security-group {{ cluster_security_group }} \
 	--network {{ cluster_network_name }} 2>&1 \

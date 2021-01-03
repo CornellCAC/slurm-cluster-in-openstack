@@ -48,7 +48,7 @@ This yaml file defines variables that configure the cluster. The relevant ones a
 Ansible playbooks are idempotent. After correcting an error or updating a variable, you should be able to run the playbooks as many times as needed.
 
 * Create the head node by running the `create_head_node.yml` playbook: `ansible-playbook create_head_node.yml`
-* Provision the head node by running the `provision_head_node.yml` playbook: `ansible-playbook provision_head_node.yml`
+* Provision the head node by running the `provision_head_node.yml` playbook: `ansible-playbook provision_head_node.yml`. This playbook will take a while to run depending on your head node flavor as it installs user software packages (gcc 9, openmpi 4, etc.) that come with OpenHPC 2.x distribution.
 * Build compute node image by running the `create_compute_image.yml` playbook. This playbook makes sure `compute_node_image` image does not already exist in the cloud and will fail if it does. Delete the pre-existing `compute_node_image` using the `openstack image delete <compute_node_image>` command if needed: `ansible-playbook create_compute_image.yml`
 
 # Access the Cluster

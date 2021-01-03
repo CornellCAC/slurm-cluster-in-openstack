@@ -33,7 +33,7 @@
 
     - name: Delete cluster head node boot volume
       openstack.cloud.volume:
-        name: "{{ head_node_name }}"
+        name: "{{ head_node_volume }}"
         state: absent
 
     - name: Delete cluster security group 
@@ -45,6 +45,10 @@
       os_keypair:
         name: "{{ keypair_name }}"
         state: absent
+  
+    - name: Delete compute node image
+      openstack.cloud.image:
+        name: "{{ compute_node_image}}"
 
     - debug:
         msg: "Cleaned up {{ cluster_name }} cloud resources." 

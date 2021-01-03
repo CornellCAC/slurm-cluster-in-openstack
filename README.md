@@ -20,10 +20,37 @@ To run the ansible playbooks described in the subsequent sections, you must firs
 
 ### vars/main.yml ###
 This yaml file defines variables that configure the cluster. The relevant ones are:
+
 * Cluster
-  * `cluster_name`: Use a name unique to your Openstack project. The playbooks identify cloud resources used by the cluster by this string in the resource names.
+  * `cluster_name`: Use a name unique to your Openstack project. The playbooks identify cloud resources used by the cluster by this string in the resource names. **Need to update the default values**
+
 * Head Node
   * `head_node_flavor`: instance flavor of the head node.
-  * `head_node_disk_size_gb`: disk size of the head node.
+  * `head_node_disk_size_gb`: disk size of the head node in GB
+
 * Access
-  * `ssh_public_keyfile` and `ssh_private_keyfile`: Full paths (no tilde) to matching ssh public and private keys for gain initial access to the cluster.
+  * `ssh_public_keyfile` and `ssh_private_keyfile`: Full paths (no tilde) to matching ssh public and private keys for gain initial access to the cluster. **Need to update the default values**
+  * `cluster_network_ssh_access`: Restrict ssh access to the cluster to this IP range, or enter `0.0.0.0/0` for no restrictions. 
+
+* Networking
+  * `cluster_network_dns_servers`: Enter the appropriate DNS server for your Openstack cloud. The default values are good for CAC Red Cloud.
+
+* Compute Imaging Insance: create_compute_image.yml uses this instance and create the compute node image. The playbook will create and delete this instance as needed.
+  * `compute_imaging_instance_flavor`: instance flavor of the compute imaging instance
+  
+* Compute Node: If you change any of the parameters in this section after the cluster is deployed, re-run the `provision_head_node.yml` and `create_compute_image.yml` playbook for the changes to take effect.
+  * `compute_node_flavor` and `compute_node_cpus`: The flavor and CPU counts of a compute node. The CPU count must match the flavor or `slurmd` might fail to start on the compute node.
+  * `compute_node_disk_size_gb`: disk size of the compute node in GB.
+  * `max_compute_nodes`: maximum number of compute nodes the cluster can have. 
+  * `slurm_suspend_time`: Number of seconds slurm waits before deleting an idle compute node instance.
+  
+## Deploy Cluster
+* Create the head node by running the `create_head_node.yml` playbook: `ansible-playbook create_head_node.yml`
+* Provision the head node by running the `provision_head_node.yml` playbook: `ansible-playbook provision_head_node.yml`
+* Build compute node image by running the `create_compute_image.yml` playbook. This playbook makes sure `compute_node_image` image does not already exist in the cloud and will fail if it does. Delete the pre-existing `compute_node_image` using the `openstack image delete <compute_node_image>` command if needed: `ansible-playbook create_compute_image.yml`
+
+# Access the Cluster
+You can gain initial access to the cluster by ssh to the head node's IP address as defined by the `image_init_user` variable in `vars/main.yml`. When you submit jobs to slurm using the `sbatch` or `srun` commands on the head node, slurm will create and delete compute node instances as defined by the `max_compute_nodes` and `slurm_suspend_time` variables.\
+
+# Clean Up
+When you are done with the cluster, delete all cloud resources used by the cluster using the `destroy_cluster.yml` playbook: `ansible-playbook destroy_cluster.yml`. **Note: all data stored in the cluster will be lost, forever, unrecoverable.**

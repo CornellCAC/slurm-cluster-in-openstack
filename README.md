@@ -30,7 +30,7 @@ This yaml file defines variables that configure the cluster. The relevant ones a
 
 * Access
   * `ssh_public_keyfile` and `ssh_private_keyfile`: Full paths (no tilde) to matching ssh public and private keys for gain initial access to the cluster. **Need to update the default values.**
-  * `cluster_network_ssh_access`: Restrict ssh access to the cluster to this IP range, or enter `0.0.0.0/0` for no restrictions. 
+  * `cluster_network_ssh_access`: Restrict ssh access to the cluster to this IP range, or enter `0.0.0.0/0` for no restrictions. Make sure this CIDR include the IP address of your computer so it can deploy the cluster!
 
 * Networking
   * `cluster_network_dns_servers`: Enter the appropriate DNS server for your Openstack cloud. The default values are good for CAC Red Cloud.

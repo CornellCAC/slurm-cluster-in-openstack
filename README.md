@@ -14,7 +14,7 @@ These ansible playbooks create and manage a dynamically allocated slurm cluster 
 
 To run the ansible playbooks described in the subsequent sections, you must first in the same terminal:
 1. Activate the ansible python virtual environment using the `source ansible/bin/activate` command. 
-2. Source the `openrc` file to configure access to the Openstack cloud. Confirm access by using the `openstack project list` command. The command should return a list of projects to which you have access in the Openstack cloud.
+2. Source in the Openstack cloud credentials in the `openrc` file. Confirm access by using the `openstack project list` command. The command should return a list of projects to which you have access in the Openstack cloud.
 
 ## Configure Cluster
 

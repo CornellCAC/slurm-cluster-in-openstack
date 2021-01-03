@@ -22,14 +22,14 @@ To run the ansible playbooks described in the subsequent sections, you must firs
 This yaml file defines variables that configure the cluster. The relevant ones are:
 
 * Cluster
-  * `cluster_name`: Use a name unique to your Openstack project. The playbooks identify cloud resources used by the cluster by this string in the resource names. After you set this variable initially, please do not change it. **Need to update the default values**
+  * `cluster_name`: Use a name unique to your Openstack project. The playbooks identify cloud resources used by the cluster by this string in the resource names. After you set this variable initially, please do not change it. **Need to update the default values.**.
 
 * Head Node
   * `head_node_flavor`: instance flavor of the head node.
   * `head_node_disk_size_gb`: disk size of the head node in GB.
 
 * Access
-  * `ssh_public_keyfile` and `ssh_private_keyfile`: Full paths (no tilde) to matching ssh public and private keys for gain initial access to the cluster. **Need to update the default values**
+  * `ssh_public_keyfile` and `ssh_private_keyfile`: Full paths (no tilde) to matching ssh public and private keys for gain initial access to the cluster. **Need to update the default values.**
   * `cluster_network_ssh_access`: Restrict ssh access to the cluster to this IP range, or enter `0.0.0.0/0` for no restrictions. 
 
 * Networking

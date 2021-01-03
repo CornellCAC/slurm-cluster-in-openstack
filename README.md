@@ -26,7 +26,7 @@ This yaml file defines variables that configure the cluster. The relevant ones a
 
 * Head Node
   * `head_node_flavor`: instance flavor of the head node.
-  * `head_node_disk_size_gb`: disk size of the head node in GB
+  * `head_node_disk_size_gb`: disk size of the head node in GB.
 
 * Access
   * `ssh_public_keyfile` and `ssh_private_keyfile`: Full paths (no tilde) to matching ssh public and private keys for gain initial access to the cluster. **Need to update the default values**

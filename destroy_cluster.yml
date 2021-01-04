@@ -36,6 +36,17 @@
         name: "{{ head_node_volume }}"
         state: absent
 
+    - name: Delete all cluster volumes
+      openstack.cloud.volume:
+        name: "{{ item.name }}"
+        state: absent
+      loop: "{{ cluster_instances.openstack_servers }}"
+
+    - name: Delete compute node image volume
+      openstack.cloud.volume:
+         name: "{{ compute_node_image }}"
+         state: absent
+
     - name: Delete cluster security group 
       openstack.cloud.security_group:
         name: "{{ cluster_security_group }}"
@@ -49,6 +60,7 @@
     - name: Delete compute node image
       openstack.cloud.image:
         name: "{{ compute_node_image}}"
+        state: absent
 
     - debug:
         msg: "Cleaned up {{ cluster_name }} cloud resources." 

@@ -10,10 +10,13 @@ echo "Node resume invoked: $0 $*" >> $log_loc
 for host in $(scontrol show hostname $1)
 do
 
-(echo "creating $host" >> $log_loc;
+(echo "creating $host" >> $log_loc; 
+    /usr/local/bin/openstack volume create \
+    --image {{ compute_node_image }} \
+    --size {{ compute_node_disk_size_gb }} $host >> $log_loc;
     /usr/local/bin/openstack server create $host \
     --flavor {{ compute_node_flavor }} \
-    --image {{ compute_node_image }}  \
+    --volume $host  \
     --key-name {{ keypair_name }} \
     --security-group {{ cluster_security_group }} \
 	--network {{ cluster_network_name }} 2>&1 \

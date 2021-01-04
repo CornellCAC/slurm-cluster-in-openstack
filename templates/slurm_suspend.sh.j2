@@ -51,6 +51,8 @@ do
     fi
     destroy_result=$(/usr/local/bin/openstack server delete $host 2>&1) 
     echo "$(date) Deleted $host: $destroy_result" >> $log_loc
+    sleep 15
+    destroy_result=$(/usr/local/bin/openstack volume delete $host 2>&1)
   done
 
   sleep 5 #wait a bit for hosts to enter STOP state

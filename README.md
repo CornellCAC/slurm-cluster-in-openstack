@@ -55,4 +55,4 @@ Ansible playbooks are idempotent. After correcting an error or updating a variab
 You can gain initial access to the cluster by ssh to the head node's IP address as defined by the `image_init_user` variable in `vars/main.yml`. When you submit jobs to slurm using the `sbatch` or `srun` commands on the head node, slurm will create and delete compute node instances as defined by the `max_compute_nodes` and `slurm_suspend_time` variables.
 
 # Clean Up
-When you are done with the cluster, delete all cloud resources used by the cluster using the `destroy_cluster.yml` playbook: `ansible-playbook destroy_cluster.yml`. **Note: all data stored in the cluster will be lost, forever, unrecoverable.**
+When you are done with the cluster, delete all cloud resources used by the cluster using the `destroy_cluster.yml` playbook: `ansible-playbook destroy_cluster.yml`. **Note: all data stored in the cluster will be lost, forever, and unrecoverable.**

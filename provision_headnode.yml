@@ -15,12 +15,19 @@
     - role: geerlingguy.nfs
       vars:
         nfs_exports: [ "/home {{ cluster_network_cidr }}(rw,sync,no_root_squash)","/opt/ohpc/pub {{ cluster_network_cidr }}(rw,sync,no_root_squash)" ]
+
     - role: geerlingguy.ntp
       vars:
+        ntp_daemon: chronyd
+        ntp_timezone: "America/New_York"
+        ntp_enabled: true
+        ntp_config_file: /etc/chrony.conf
+        ntp_manage_config: true
         ntp_servers:
           - "ntp0.cac.cornell.edu iburst"
           - "ntp1.cac.cornell.edu iburst"
           - "ntp2.cac.cornell.edu iburst"
+        ntp_cron_handler_enabled: true
 
   handlers:
     - name: restart slurmctld
@@ -30,9 +37,9 @@
 
   tasks:
     - import_tasks: tasks/install_openstack_client.yml
-    
+
     - import_tasks: tasks/install_headnode_packages.yml
-   
+
     - name: Allow incoming traffic from cluster network
       ansible.posix.firewalld:
         source: "{{ cluster_network_cidr }}"
@@ -40,6 +47,18 @@
         state: enabled
         permanent: true
         immediate: true
+
+    - name: Upload cluster-env script and profiles
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: '0755'
+      with_items:
+        - { src: cluster-env.sh, dest: /etc/profile.d/cluster-env.sh }
+        - { src: cluster-env.csh, dest: /etc/profile.d/cluster-env.csh }
+        - { src: cluster-env, dest: /usr/bin/cluster-env }
 
     - name: Create /var/log/slurm
       file:
@@ -87,7 +106,7 @@
         name: slurmctld
         state: started
         enabled: true
-    
+
     - name: Start munge
       service:
         name: munge
@@ -99,4 +118,3 @@
         src: /etc/munge/munge.key
         dest: ./files/munge.key
         flat: yes
-

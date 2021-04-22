@@ -57,9 +57,10 @@ cluster_network_name: "{{ cluster_name }}-net"
 cluster_network_cidr: 192.168.100.0/24
 cluster_network_allocation_pool_start: 192.168.100.50
 cluster_network_allocation_pool_end: 192.168.100.249
-cluster_network_dns_servers: 
+cluster_network_dns_servers:
   - 10.84.5.252
-  - 10.84.40.250
+  - 10.84.3.251
+  - 10.84.3.249
 cluster_network_router: "{{ cluster_network_name }}-router"
 
 #
@@ -73,11 +74,11 @@ compute_imaging_instance_flavor: c1.m8
 #
 compute_node_image: "{{ cluster_name }}-compute-image"
 compute_node_flavor: c4.m32
-# Need to match the core count of compute_node_flavor. Need to rebuild 
+# Need to match the core count of compute_node_flavor. Need to rebuild
 # compute image after changing this value
-compute_node_cpus: 4  
+compute_node_cpus: 4
 compute_node_disk_size_gb: 50
-# Max number of compute nodes. Need to rebuild compute image after 
+# Max number of compute nodes. Need to rebuild compute image after
 # changing this value
 max_compute_nodes: 10
 # Number of seconds slurm waits before deleting an idle compute node

@@ -168,17 +168,15 @@
         group: root
         mode: 0755
 
-    - name: Start slurmctld
+    - name: Start slurmctld, slurmdbd, and munge
       service:
-        name: slurmctld
+        name: "{{ item }}"
         state: started
         enabled: true
-
-    - name: Start munge
-      service:
-        name: munge
-        state: started
-        enabled: true
+      with_items:
+        - slurmctld
+        - slurmdbd
+        - munge
 
     - name: Gather munge.key
       fetch:

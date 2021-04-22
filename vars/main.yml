@@ -38,6 +38,8 @@ head_node_user_packages:
   - fftw-gnu9-openmpi4-ohpc
   - hypre-gnu9-openmpi4-ohpc
   - scalapack-gnu9-openmpi4-ohpc
+mysql_user: slurm
+mysql_password: slurmdb
 
 #
 # Access

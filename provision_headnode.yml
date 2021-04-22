@@ -8,7 +8,7 @@
 
 - hosts: headnode
   become: yes
-  vars_files: 
+  vars_files:
     - ./vars/main.yml
 
   roles:
@@ -30,15 +30,42 @@
         ntp_cron_handler_enabled: true
 
   handlers:
+    - name: restart slurmdbd
+      service:
+        name: slurmdbd
+        state: restarted
+        enabled: true
+
     - name: restart slurmctld
       service: 
         name: slurmctld
         state: restarted
+        enabled: true
+
+    - name: restart rsyslog
+      service:
+        name: rsyslog
+        state: restarted
+        enabled: true
+
+    - name: restart mariadb
+      service:
+        name: mariadb
+        state: restarted
+        enabled: true
 
   tasks:
     - import_tasks: tasks/install_openstack_client.yml
 
     - import_tasks: tasks/install_headnode_packages.yml
+
+    - name: Increase memlock
+      blockinfile:
+        path: /etc/security/limits.conf
+        insertbefore: '# End of file'
+        block: |
+          * soft memlock unlimited
+          * hard memlock unlimited
 
     - name: Allow incoming traffic from cluster network
       ansible.posix.firewalld:
@@ -75,6 +102,46 @@
         owner: slurm
         group: slurm
         mode: 0600
+
+    - name: Install MariaDB
+      dnf:
+        name:
+          - mariadb-server
+        state: present
+
+    - name: Start MariaDB
+      service:
+        name: mariadb
+        state: started
+        enabled: true
+
+    - name: Install PyMySQL
+      package:
+        name: python3-PyMySQL
+        state: present
+
+    - name: Create slurm_acct_db MySQL database
+      community.mysql.mysql_db:
+        name: slurm_acct_db
+        state: present
+
+    - name: Create slurm user in MySQL database
+      community.mysql.mysql_user:
+        name: "{{ mysql_user }}"
+        host: localhost
+        password: "{{ mysql_password }}"
+        priv: 
+          'slurm_acct_db.*': 'ALL,GRANT'
+        state: present
+
+    - name: Configure slurmdbd
+      template:
+        src: slurmdbd.conf.j2
+        dest: /etc/slurm/slurmdbd.conf
+        owner: slurm
+        group: slurm
+        mode: 0600
+      notify: restart slurmdbd
 
     - name: Copy slurm.conf
       template:

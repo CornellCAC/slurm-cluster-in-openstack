@@ -66,20 +66,25 @@
 
     - debug: 
         msg: "{{ cluster_name }}_compute_imaging instance is running at {{ hostvars['localhost'].compute_imaging.openstack_servers[0].accessIPv4 }}."
- 
+
 - hosts: compute_imaging
   gather_facts: true
   vars_files:
-    - ./vars/main.yml 
+    - ./vars/main.yml
   become: true
-  
+
   roles:
     - role: geerlingguy.ntp
       vars:
+        ntp_daemon: chronyd
+        ntp_timezone: "America/New_York"
+        ntp_enabled: true
+        ntp_config_file: /etc/chrony.conf
         ntp_servers:
           - "ntp0.cac.cornell.edu iburst"
           - "ntp1.cac.cornell.edu iburst"
           - "ntp2.cac.cornell.edu iburst"
+        ntp_cron_handler_enabled: true
 
   tasks:
     - import_tasks: tasks/install_compute_packages.yml
@@ -191,4 +196,3 @@
 
     - debug:
         msg: "Created {{ compute_node_image }}."
-      

@@ -8,7 +8,7 @@
 
 - name: Enable PowerTools repo
   lineinfile:
-    path: /etc/yum.repos.d/CentOS-Linux-PowerTools.repo
+    path: "/etc/yum.repos.d/{{ yum_repo_prefix[ansible_facts.distribution] }}-PowerTools.repo"
     regexp: '^enabled=0'
     line: 'enabled=1'
 

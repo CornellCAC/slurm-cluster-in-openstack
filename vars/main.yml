@@ -4,8 +4,11 @@
 # Cluster general info
 # 
 cluster_name: "cluster1"
-image_name: "centos-8.3"
+image_name: "rocky-8.4"
 image_init_user: "cloud-user"
+yum_repo_prefix:
+  Rocky: "Rocky"
+  CentOS: "CentOS-Linux"
 
 #
 # Heade node

@@ -168,6 +168,15 @@
         group: root
         mode: 0755
 
+    - name: Increase the number of munge daemons to 10
+      copy: 
+        dest: /etc/sysconfig/munge
+        owner: root
+        group: root
+        mode: 0644
+        content: |
+          DAEMON_ARGS="--key-file /etc/munge/munge.key --num-threads 10"
+
     - name: Start slurmctld, slurmdbd, and munge
       service:
         name: "{{ item }}"

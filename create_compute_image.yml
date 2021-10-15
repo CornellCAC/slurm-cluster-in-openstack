@@ -136,6 +136,15 @@
         group: root
         mode: 0644
 
+    - name: Increase the number of munge daemons to 10
+      copy: 
+        dest: /etc/sysconfig/munge
+        owner: root
+        group: root
+        mode: 0644
+        content: |
+          DAEMON_ARGS="--key-file /etc/munge/munge.key --num-threads 10"
+
     - name: Copy munge key
       copy: 
         src: munge.key
@@ -161,6 +170,7 @@
     - name: Wait 10 seconds for instance shut down
       pause: 
         seconds: 10
+
 
 - hosts: localhost
   gather_facts: false

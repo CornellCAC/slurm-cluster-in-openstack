@@ -61,9 +61,9 @@ cluster_network_cidr: 192.168.100.0/24
 cluster_network_allocation_pool_start: 192.168.100.50
 cluster_network_allocation_pool_end: 192.168.100.249
 cluster_network_dns_servers:
-  - 10.84.5.252
-  - 10.84.3.251
-  - 10.84.3.249
+  - 128.253.180.2
+  - 192.35.82.50
+  - 132.236.56.250
 cluster_network_router: "{{ cluster_network_name }}-router"
 
 #

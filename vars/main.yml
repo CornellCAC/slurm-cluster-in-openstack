@@ -4,7 +4,7 @@
 # Cluster general info
 # 
 cluster_name: "cluster1"
-image_name: "rocky-8.4"
+image_name: "rocky-8.5"
 image_init_user: "cloud-user"
 yum_repo_prefix:
   Rocky: "Rocky"
@@ -43,6 +43,8 @@ head_node_user_packages:
   - scalapack-gnu9-openmpi4-ohpc
 mysql_user: slurm
 mysql_password: slurmdb
+# Set install_intel_oneapi to true to install Intel OneAPI (minimum head_node_disk_size_gb 60 )
+install_intel_oneapi: false
 
 #
 # Access

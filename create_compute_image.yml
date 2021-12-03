@@ -120,6 +120,22 @@
         fstype: nfs
         state: present
 
+    - name: Create /opt/intel in chroot
+      file:
+        path: /opt/intel
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+      when: install_intel_oneapi
+
+    - name: Add NFS mount /opt/intel to chroot
+      lineinfile:
+        path: /etc/fstab
+        line: "{{ hostvars['localhost'].headnode.openstack_servers[0].private_v4 }}:/opt/intel /opt/intel nfs nfsvers=3,nodev 0 0"
+        state: present
+      when: install_intel_oneapi
+
     - name: Create /var/log/slurm
       file:
         path: /var/log/slurm

@@ -14,7 +14,18 @@
   roles:
     - role: geerlingguy.nfs
       vars:
-        nfs_exports: [ "/home {{ cluster_network_cidr }}(rw,sync,no_root_squash)","/opt/ohpc/pub {{ cluster_network_cidr }}(rw,sync,no_root_squash)" ]
+        nfs_exports:
+          - "/home {{ cluster_network_cidr }}(rw,sync,no_root_squash)"
+          - "/opt/ohpc/pub {{ cluster_network_cidr }}(rw,sync,no_root_squash)"
+      when: not install_intel_oneapi
+
+    - role: geerlingguy.nfs
+      vars:
+        nfs_exports:
+          - "/home {{ cluster_network_cidr }}(rw,sync,no_root_squash)"
+          - "/opt/ohpc/pub {{ cluster_network_cidr }}(rw,sync,no_root_squash)"
+          - "/opt/intel {{ cluster_network_cidr }}(ro,no_root_squash)"
+      when: install_intel_oneapi
 
     - role: geerlingguy.ntp
       vars:
@@ -58,6 +69,9 @@
     - import_tasks: tasks/install_openstack_client.yml
 
     - import_tasks: tasks/install_headnode_packages.yml
+
+    - import_tasks: tasks/install_oneapi.yml
+      when: install_intel_oneapi
 
     - name: Increase memlock
       blockinfile:

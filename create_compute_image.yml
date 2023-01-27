@@ -9,10 +9,10 @@
     openstack.cloud.image_info:
       image: "{{ compute_node_image }}"
     register: compute_image_info
-    
-  - fail: 
+
+  - fail:
       msg: "{{ compute_node_image }} already exists."
-    when: compute_image_info.openstack_image 
+    when: compute_image_info.openstack_images
 
   - name: Get size of the image
     os_image_info:
@@ -20,10 +20,10 @@
     register: image_info
 
   - name: Create boot volume for compute imaging instance
-    os_volume: 
+    os_volume:
       name: "{{ compute_node_image }}"
       image: "{{ image_name }}"
-      size: "{{ (image_info.openstack_image.size/1024/1024/1024) | int }}"
+      size: "{{ (image_info.openstack_images[0].size/1024/1024/1024) | int }}"
       bootable: true
       state: present
 
@@ -97,6 +97,14 @@
         permanent: true
         immediate: true
 
+    - name: Configure compute node to send syslog to head node
+      blockinfile:
+        path: "/etc/rsyslog.conf"
+        insertbefore: EOF
+        block: |
+          *.* @{{ hostvars['localhost'].headnode.openstack_servers[0].private_v4 }}:514
+          action(type="omfwd" Target="{{ hostvars['localhost'].headnode.openstack_servers[0].private_v4 }}" Port="514" Protocol="udp")
+
     - name: Add home directory mount to /etc/fstab
       ansible.posix.mount:
         path: /home
@@ -111,7 +119,6 @@
         owner: root
         group: root
         mode: 0755
-        recurse: yes
 
     - name: Add /opt/ohpc/pub to /etc/fstab
       ansible.posix.mount:
@@ -192,7 +199,7 @@
   gather_facts: false
   vars_files:
     - ./vars/main.yml
-  
+
   tasks:
     - name: Delete compute imaging instance
       openstack.cloud.server:
@@ -212,7 +219,7 @@
         name: "{{ compute_node_image }}"
         volume: "{{ volumes_info.volumes[0].id }}"
         disk_format: raw
-        timeout: 600
+        timeout: 1200
         state: present
 
     - name: Delete compute image volume

@@ -10,12 +10,29 @@ echo "Node resume invoked: $0 $*" >> $log_loc
 for host in $(scontrol show hostname $1)
 do
 
-(echo "creating $host" >> $log_loc; 
+(echo "resuming $host" >> $log_loc; 
+    if [[ $(/usr/local/bin/openstack server show -c status -f value $host | wc -l) -gt 0 ]]
+    then
+        echo "clean up $host" >> $log_loc;
+        /usr/local/bin/openstack server delete $host;
+        sleep 15;
+    fi;
+    volume_status=$(/usr/local/bin/openstack volume show -c status -f value $host);
+    while [[ $volume_status == 'available' ]] || [[ $volume_status == 'error' ]]; do
+        delete_result=$(/usr/local/bin/openstack volume delete $host);
+        echo "Clean up old volume $host: ${delete_result}" >> $log_loc;
+        volume_status=$(/usr/local/bin/openstack volume show -c status -f value $host);
+        sleep 5;
+    done;
     /usr/local/bin/openstack volume create \
     --image {{ compute_node_image }} \
     --size {{ compute_node_disk_size_gb }} $host >> $log_loc;
+    until [[ $(/usr/local/bin/openstack volume show -c status -f value $host) == 'available' ]]; do
+	    echo "Wait for volume $host to be ready" >> $log_loc;
+	    sleep 1;
+    done;
     /usr/local/bin/openstack server create $host \
-    --flavor {{ compute_node_flavor }} \
+    --flavor {{compute_node_flavor}} \
     --volume $host  \
     --key-name {{ keypair_name }} \
     --security-group {{ cluster_security_group }} \

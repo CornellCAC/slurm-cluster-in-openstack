@@ -1,6 +1,7 @@
 ---
 collections:
-- openstack.cloud
+- name: openstack.cloud
+  version: 1.10.0 
 - ansible.posix
 - community.general
 

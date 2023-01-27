@@ -4,8 +4,8 @@
 # Cluster general info
 # 
 cluster_name: "cluster1"
-image_name: "rocky-8.5"
-image_init_user: "cloud-user"
+image_name: "rocky-8.7"
+image_init_user: "rocky"
 yum_repo_prefix:
   Rocky: "Rocky"
   CentOS: "CentOS-Linux"
@@ -19,28 +19,28 @@ head_node_flavor: c1.m8
 head_node_disk_size_gb: 50
 head_node_user_packages:
   - ohpc-autotools
-  - ohpc-gnu9-io-libs
-  - ohpc-gnu9-openmpi4-io-libs
-  - ohpc-gnu9-openmpi4-parallel-libs
-  - ohpc-gnu9-parallel-libs
-  - ohpc-gnu9-python3-libs
-  - gnu9-compilers-ohpc
-  - openmpi4-gnu9-ohpc
-  - lmod-defaults-gnu9-openmpi4-ohpc
+  - ohpc-gnu12-io-libs
+  - ohpc-gnu12-openmpi4-io-libs
+  - ohpc-gnu12-openmpi4-parallel-libs
+  - ohpc-gnu12-parallel-libs
+  - ohpc-gnu12-python3-libs
+  - gnu12-compilers-ohpc
+  - openmpi4-gnu12-ohpc
+  - lmod-defaults-gnu12-openmpi4-ohpc
   - automake-ohpc
   - autoconf-ohpc
   - cmake-ohpc
   - libtool-ohpc
-  - python3-scipy-gnu9-openmpi4-ohpc
-  - python3-numpy-gnu9-ohpc
-  - python3-mpi4py-gnu9-openmpi4-ohpc
-  - pnetcdf-gnu9-openmpi4-ohpc
-  - gsl-gnu9-ohpc
-  - openblas-gnu9-ohpc
-  - boost-gnu9-openmpi4-ohpc
-  - fftw-gnu9-openmpi4-ohpc
-  - hypre-gnu9-openmpi4-ohpc
-  - scalapack-gnu9-openmpi4-ohpc
+  - python3-scipy-gnu12-openmpi4-ohpc
+  - python3-numpy-gnu12-ohpc
+  - python3-mpi4py-gnu12-openmpi4-ohpc
+  - pnetcdf-gnu12-openmpi4-ohpc
+  - gsl-gnu12-ohpc
+  - openblas-gnu12-ohpc
+  - boost-gnu12-openmpi4-ohpc
+  - fftw-gnu12-openmpi4-ohpc
+  - hypre-gnu12-openmpi4-ohpc
+  - scalapack-gnu12-openmpi4-ohpc
 mysql_user: slurm
 mysql_password: slurmdb
 # Set install_intel_oneapi to true to install Intel OneAPI (minimum head_node_disk_size_gb 60 )

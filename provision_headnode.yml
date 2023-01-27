@@ -206,3 +206,14 @@
         src: /etc/munge/munge.key
         dest: ./files/munge.key
         flat: yes
+
+    - name: Configure rsyslog to accept syslog from compute nodes
+      blockinfile:
+        path: /etc/rsyslog.d/ohpc.conf
+        insertbefore: EOF
+        create: true
+        state: present
+        block: |
+          module(load="imudp")
+          input(type="imudp" port="514")
+      notify: restart rsyslog

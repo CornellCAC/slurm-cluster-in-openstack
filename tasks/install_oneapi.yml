@@ -1,0 +1,74 @@
+---
+- name: Add oneAPI repo
+  dnf:
+    name: intel-oneapi-toolkit-release-ohpc
+    state: present
+
+- name: Import GPG key for oneAPI repo
+  rpm_key:
+    state: present
+    key: https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+
+- name: Install HPC kit
+  dnf:
+    name: intel-hpckit
+    state: present
+
+- name: Integrate Intel compilers and Intel MPI with OpenHPC
+  dnf:
+    name: 
+      - intel-compilers-devel-ohpc
+      - intel-mpi-devel-ohpc
+    state: present
+
+- name: Install blacs95
+  shell:
+    cmd: 'source /opt/intel/oneapi/compiler/latest/env/vars.sh; source /opt/intel/oneapi/mkl/latest/env/vars.sh; cd $MKLROOT/interfaces/blas95; make CFLAGS="-fPIC" libintel64 INSTALL_DIR=$MKLROOT'
+    creates: "/opt/intel/oneapi/mkl/latest/lib/intel64/libmkl_blas95_lp64.a"
+
+- name: Install fftw2xc
+  shell:
+    cmd: 'source /opt/intel/oneapi/compiler/latest/env/vars.sh; source /opt/intel/oneapi/mkl/latest/env/vars.sh; cd $MKLROOT/interfaces/fftw2xc; make CFLAGS="-fPIC" libintel64'
+    creates: "/opt/intel/oneapi/mkl/latest/lib/intel64/libfftw2xc_double_intel.a"
+
+- name: Install fftw2xf
+  shell:
+    cmd: 'source /opt/intel/oneapi/compiler/latest/env/vars.sh; source /opt/intel/oneapi/mkl/latest/env/vars.sh; cd $MKLROOT/interfaces/fftw2xf; make CFLAGS="-fPIC" libintel64'
+    creates: "/opt/intel/oneapi/mkl/latest/lib/intel64/libfftw2xf_double_intel.a"
+
+- name: Install fftw2x_cdft
+  shell:
+    cmd: 'source /opt/intel/oneapi/compiler/latest/env/vars.sh; source /opt/intel/oneapi/mkl/latest/env/vars.sh; source /opt/intel/oneapi/mpi/latest/env/vars.sh; cd $MKLROOT/interfaces/fftw2x_cdft; make CFLAGS="-fPIC" libintel64 mpi=intelmpi compiler=intel'
+    creates: '/opt/intel/oneapi/mkl/latest/lib/intel64/libfftw2x_cdft_DOUBLE_lp64.a'
+
+- name: Install fftw3xc
+  shell:
+    cmd: 'source /opt/intel/oneapi/compiler/latest/env/vars.sh; source /opt/intel/oneapi/mkl/latest/env/vars.sh; cd $MKLROOT/interfaces/fftw3xc; make CFLAGS="-fPIC" libintel64 compiler=intel MKLROOT=$MKLROOT INSTALL_DIR=$MKLROOT/lib/intel64'
+    creates: '/opt/intel/oneapi/mkl/latest/lib/intel64/libfftw3xc_intel.a'
+
+- name: Install fftw3xf
+  shell:
+    cmd: 'source /opt/intel/oneapi/compiler/latest/env/vars.sh; source /opt/intel/oneapi/mkl/latest/env/vars.sh; cd $MKLROOT/interfaces/fftw3xf; make CFLAGS="-fPIC" libintel64 compiler=intel MKLROOT=$MKLROOT INSTALL_DIR=$MKLROOT/lib/intel64'
+    creates: '/opt/intel/oneapi/mkl/latest/lib/intel64/libfftw3xf_intel.a'
+
+- name: Install fftw3x_cdft
+  shell:
+    cmd: 'source /opt/intel/oneapi/compiler/latest/env/vars.sh; source /opt/intel/oneapi/mkl/latest/env/vars.sh; source /opt/intel/oneapi/mpi/latest/env/vars.sh; cd $MKLROOT/interfaces/fftw3x_cdft; make CFLAGS="-fPIC" libintel64 mpi=intelmpi compiler=intel'
+    creates: '/opt/intel/oneapi/mkl/latest/lib/intel64/libfftw2x_cdft_DOUBLE_lp64.a'
+
+- name: Install the rest of OpenHPC packages for Intel toolchain
+  dnf:
+    name:
+      - ohpc-intel-io-libs
+      - ohpc-intel-impi-io-libs
+      - ohpc-intel-perf-tools
+      - ohpc-intel-python3-libs
+      - ohpc-intel-impi-parallel-libs
+      - ohpc-intel-openmpi4-parallel-libs
+      - python3-mpi4py-intel-impi-ohpc
+      - pnetcdf-intel-impi-ohpc
+      - gsl-intel-ohpc
+      - boost-intel-impi-ohpc
+      - hypre-intel-impi-ohpc
+      - scalapack-intel-impi-ohpc
+    state: present

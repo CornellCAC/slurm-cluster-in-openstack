@@ -84,10 +84,16 @@
           - "ntp0.cac.cornell.edu iburst"
           - "ntp1.cac.cornell.edu iburst"
           - "ntp2.cac.cornell.edu iburst"
-        ntp_cron_handler_enabled: true
+        ntp_cron_handler_enabled: false
 
   tasks:
     - import_tasks: tasks/install_compute_packages.yml
+
+    - name: Make sure firewall is running
+      service:
+        name: firewalld
+        state: started
+        enabled: true
 
     - name: Allow incoming traffic from cluster network
       ansible.posix.firewalld:

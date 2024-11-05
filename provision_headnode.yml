@@ -66,9 +66,11 @@
         enabled: true
 
   tasks:
+    - import_tasks: tasks/install_headnode_packages.yml
+
     - import_tasks: tasks/install_openstack_client.yml
 
-    - import_tasks: tasks/install_headnode_packages.yml
+      #   - import_tasks: tasks/install_headnode_packages.yml
 
     - import_tasks: tasks/install_oneapi.yml
       when: install_intel_oneapi
@@ -80,6 +82,12 @@
         block: |
           * soft memlock unlimited
           * hard memlock unlimited
+
+    - name: Make sure firewall is running
+      service:
+        name: firewalld
+        state: started
+        enabled: true
 
     - name: Allow incoming traffic from cluster network
       ansible.posix.firewalld:
@@ -134,6 +142,14 @@
         name: python3-PyMySQL
         state: present
 
+    - name: Copy .my.cnf
+      copy:
+        src: files/my.cnf
+        dest: /root/.my.cnf
+        owner: root
+        group: root
+        mode: '0644'
+          
     - name: Create slurm_acct_db MySQL database
       community.mysql.mysql_db:
         name: slurm_acct_db
@@ -197,9 +213,9 @@
         state: started
         enabled: true
       with_items:
-        - slurmctld
-        - slurmdbd
         - munge
+        - slurmdbd
+        - slurmctld
 
     - name: Gather munge.key
       fetch:

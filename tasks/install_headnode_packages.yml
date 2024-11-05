@@ -6,15 +6,9 @@
       - dnf-plugins-core
     state: present
 
-- name: Enable PowerTools repo
-  lineinfile:
-    path: "/etc/yum.repos.d/{{ yum_repo_prefix[ansible_facts.distribution] }}-PowerTools.repo"
-    regexp: '^enabled=0'
-    line: 'enabled=1'
-
 - name: Add OpenHPC repo
   dnf:
-    name: http://repos.openhpc.community/OpenHPC/2/CentOS_8/x86_64/ohpc-release-2-1.el8.x86_64.rpm
+    name: http://repos.openhpc.community/OpenHPC/3/EL_9/x86_64/ohpc-release-3-1.el9.x86_64.rpm
     disable_gpg_check: true
     state: present
 

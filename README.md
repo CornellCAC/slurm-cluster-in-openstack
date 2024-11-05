@@ -1,5 +1,5 @@
 # Slurm Cluster in Openstack Cloud
-These ansible playbooks create and manage a dynamically allocated slurm cluster in an Openstack cloud. The cluster is based on CentOS 8 and [OpenHPC 2.x](https://openhpc.community/downloads/). Slurm configurations are based on the work contained in (https://github.com/XSEDE/CRI_Jetstream_Cluster).
+These ansible playbooks create and manage a dynamically allocated slurm cluster in an Openstack cloud. The cluster is based on Rocky Linux 9 and [OpenHPC 3.x](https://openhpc.community/downloads/). Slurm configurations are based on the work contained in (https://github.com/XSEDE/CRI_Jetstream_Cluster).
 
 # Systems Requirements
 1. Access to an Openstack cloud such as [Red Cloud](https://redcloud.cac.cornell.edu) at [Cornell University Center for Advanced Computing](https://www.cac.cornell.edu)
